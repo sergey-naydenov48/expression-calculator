@@ -40,23 +40,19 @@ int main()
             sp = sp+1;
             printf("%d\n", s[sp-1]);
         }
-        if (c[i] == '*'){
+        if (c[i] == '*' or c[i] == '+'){
             //x = pop()
+            int r;
             sp = sp - 1;
             int m1 = s[sp];
             sp = sp -1;
             int m2 = s[sp];
-            int r = m1 * m2;
-            s[sp] = r;
-            sp = sp + 1;
-        }
-        if (c[i] == '+'){
-            //x = pop()
-            sp = sp - 1;
-            int m1 = s[sp];
-            sp = sp -1;
-            int m2 = s[sp];
-            int r = m1 + m2;
+            if (c[i] == '*'){
+                r = m1 * m2;
+            }
+            if ( c[i] == '+'){
+                r = m1 + m2;
+            }
             s[sp] = r;
             sp = sp + 1;
         }
