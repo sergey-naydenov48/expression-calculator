@@ -22,7 +22,12 @@ void push(int s[], int * p, int v, int size)
     *p = *p + 1;    
 }
 
-int calculator(char c[]){
+struct Calcres {
+	int quantity;
+	int result;
+};
+
+struct Calcres calculator(char c[]){
     int i;
     int s[5];
     int sp = 0;
@@ -60,8 +65,10 @@ int calculator(char c[]){
             push(s, &sp, r, sizeof(s)/sizeof(s[0]));
         }
     }
-    
-    return s[sp-1];
+    struct Calcres RES;
+    RES.quantity = sp;	
+    RES.result = s[sp-1];
+    return RES;
 }    
 
 int main()
@@ -77,7 +84,7 @@ int main()
     c[4] = '+';
     */
     
-    int spp;
+    struct Calcres spp;
     int i;
     int n = sizeof(c) - 1;
     for (i = 0; i < n; ++i){
@@ -97,7 +104,7 @@ int main()
     printf("Hello, World\n");
     
     spp = calculator(c);
-    printf("result = %d\n", spp);
+    printf("result = %d, quantity = %d\n", spp.result, spp.quantity);
     return 0;
 }
 
