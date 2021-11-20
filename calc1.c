@@ -1,25 +1,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+struct Stack {
+    int s[5];
+    int sp;
+};
 
-int pop(int s[], int * p) 
+int st_pop(struct Stack *st)
 {
-    *p = *p - 1;
-    if (*p < 0) {
+    st->sp = st->sp - 1;
+    if (st->sp < 0) {
         printf("Error: empty stack.\n");
         exit(1);
     }
-    return s[*p];
+    return st->s[st->sp];
 }
 
-void push(int s[], int * p, int v, int size) 
+void st_push(struct Stack *st, int v, int size)
 {
-    if (*p >= size) {
+    if (st->sp >= size) {
         printf("Error: full stack.\n");
         exit(1);
     }
-    s[*p] = v;
-    *p = *p + 1;    
+    st->s[st->sp] = v;
+    st->sp = st->sp + 1;
 }
 
 struct Calcres {
@@ -27,15 +31,18 @@ struct Calcres {
 	int result;
 };
 
+
 struct Calcres calculator(char c[]){
     int i;
-    int s[5];
-    int sp = 0;
+    /*int s[5];*/
+    //int sp = 0;
+    struct Stack st;
+    st.sp = 0;
     
     for (i = 0; c[i] != 0; ++i){
         if (c[i] >= '0' and c[i] <= '9') {
-            push(s, &sp, c[i] - 48, sizeof(s)/sizeof(s[0])); 
-            printf("%d\n", s[sp-1]);
+            st_push(&st, c[i] - 48, sizeof(st.s)/sizeof(st.s[0]));
+            printf("%d\n", st.s[st.sp-1]);
         }
         if (c[i] == '*' or c[i] == '+' or c[i] == '/' or c[i] == '-'){
             //x = pop()
@@ -48,8 +55,8 @@ struct Calcres calculator(char c[]){
             }
             int m2 = s[sp];
 */
-            int m2 = pop(s, &sp); 
-            int m1 = pop(s, &sp);
+            int m2 = st_pop(&st);
+            int m1 = st_pop(&st);
             if (c[i] == '*') {
                 r = m1 * m2;
             }
@@ -62,12 +69,12 @@ struct Calcres calculator(char c[]){
             else if (c[i] == '-') {
                 r = m1 - m2;    
             }
-            push(s, &sp, r, sizeof(s)/sizeof(s[0]));
+            st_push(&st, r, sizeof(st.s)/sizeof(st.s[0]));
         }
     }
     struct Calcres RES;
-    RES.quantity = sp;	
-    RES.result = s[sp-1];
+    RES.quantity = st.sp;
+    RES.result = st.s[st.sp-1];
     return RES;
 }    
 
