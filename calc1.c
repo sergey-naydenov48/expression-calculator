@@ -44,18 +44,35 @@ struct word_grinder {
 
 struct word get_word(struct word_grinder* wg)
 {
+    // "  134  2 +" -> [i:1, i:2, o:+]
+    
     char c = wg->d[wg->i];
     struct word r;
     if (0 <= c - 48 && c - 48 <= 9){
         r.nind = 1;
-        r.number = c - 48;
-        wg->i ++;
+        int x = 0;
+        
+        while (0 <= c - 48 && c - 48 <= 9){
+            int d = c - 48;
+            x = x*10 + d;
+            wg->i ++;
+            c = wg->d[wg->i];
+        }
+        
+        r.number = x;
     }
     else if ( c == '+' || c == '-' ||
               c == '*' || c == '/' ){
          r.nind = 0;
          r.operation = c;
          wg->i ++;
+    }
+    else if ( c == ' '){
+        while ( c == ' '){
+            wg->i ++;
+            c = wg->d[wg->i];
+        }
+        r = get_word(wg);    
     }
     else {
         r.nind = -1;
@@ -111,7 +128,7 @@ int main()
 {   
     //char c[5] = {'3', '5', '*', '2', '+'};
     //char c[] = {'3', '5', '*', '2', '+'};
-    char c[] = "37+";
+    char c[] = "  111 2 +";
     /*
     c[0] = '3';
     c[1] = '5';
@@ -119,6 +136,13 @@ int main()
     c[3] = '2';
     c[4] = '+';
     */
+    char a[] = "123";
+    int x = 0;
+    
+    for (int i = 0; a[i]; ++i){
+        int d = a[i] - 48;
+        x = x*10 + d;   
+    }
     
     struct Calcres spp;
     int i;
@@ -141,6 +165,7 @@ int main()
     
     spp = calculator(c);
     printf("result = %d, quantity = %d\n", spp.result, spp.quantity);
+    printf("%d\n", x);
     return 0;
 }
 
