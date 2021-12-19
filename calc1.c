@@ -6,19 +6,22 @@ struct Stack {
     int sp;
 };
 
-int st_pop(struct Stack *st)
-{
-    st->sp = st->sp - 1;
-    if (st->sp < 0) {
+int isemptystack(struct Stack *st){
+    return st->sp == 0;
+}
+
+int st_pop(struct Stack *st){
+    if (isemptystack(st)){
         printf("Error: empty stack.\n");
         exit(1);
     }
+    st->sp = st->sp - 1;
     return st->s[st->sp];
 }
 
-void st_push(struct Stack *st, int v, int size)
+void st_push(struct Stack *st, int v)
 {
-    if (st->sp >= size) {
+    if (st->sp >= sizeof(st->s)/sizeof(st->s[0])) {
         printf("Error: full stack.\n");
         exit(1);
     }
@@ -62,7 +65,7 @@ struct word get_word(struct word_grinder* wg)
         r.number = x;
     }
     else if ( c == '+' || c == '-' ||
-              c == '*' || c == '/' ){
+              c == '*' || c == '/' || c =='(' || c ==')'){
          r.nind = 0;
          r.operation = c;
          wg->i ++;
@@ -77,7 +80,84 @@ struct word get_word(struct word_grinder* wg)
     else {
         r.nind = -1;
     }
+    
     return r;
+}
+
+int isarithoper(char symbol){
+    return symbol == '*' || symbol == '+' || symbol == '/' || symbol == '-';
+}
+
+int oper_prio(char symbol){
+    if(symbol == '*' || symbol == '/')
+        return 2;
+    if(symbol == '+'|| symbol == '-')
+        return 1;
+    if(symbol == '(')
+        return 0;        
+    return -1;
+}
+
+int Deikstra(char c[]){
+    struct word_grinder wg;
+    wg.i = 0;
+    wg.d = c;
+    int counter = 0;
+    struct Stack st;
+    st.sp = 0;
+    while (1) {
+        struct word w;
+        w = get_word(&wg);
+        if (w.nind == -1){
+            while (!isemptystack(&st)){
+                int r;
+                r = st_pop(&st);
+                printf("%c ", r);
+                counter = counter + 1;
+            }
+            break;
+        }
+        
+        if (w.nind == 1){
+            printf("%d ", w.number);
+            counter = counter + 1;
+        }
+        
+        if (w.nind == 0 && isarithoper(w.operation)){
+            while (!isemptystack(&st)){
+                int r;
+                r = st_pop(&st);
+                if (oper_prio(w.operation) <= oper_prio(r)){
+                    printf("%c ", r);
+                    counter++;
+                }
+                else{
+                    st_push(&st, r);
+                    break;
+                }
+            }
+            st_push(&st, w.operation);   
+        }
+        
+        if (w.nind == 0 && w.operation == '('){
+            st_push(&st, '(');
+             
+        }
+        
+        if (w.nind == 0 && w.operation == ')'){
+            while(!isemptystack(&st)){
+                int r;
+                r = st_pop(&st);
+                if (r == '('){
+                    break;
+                }
+                printf("%c ", r);
+                counter = counter + 1;
+            }
+        }
+    }
+    printf("\n");
+    return counter;
 }
 
 struct Calcres calculator(char c[]){
@@ -96,7 +176,7 @@ struct Calcres calculator(char c[]){
             break;
         }
         if (w.nind == 1){
-            st_push(&st, w.number, sizeof(st.s)/sizeof(st.s[0]));
+            st_push(&st, w.number);
             printf("%d\n", st.s[st.sp-1]);
         }
         if (w.nind == 0){
@@ -115,7 +195,7 @@ struct Calcres calculator(char c[]){
             else if (w.operation == '-') {
                 r = m1 - m2;    
             }
-            st_push(&st, r, sizeof(st.s)/sizeof(st.s[0]));
+            st_push(&st, r);
         }
     }
     struct Calcres RES;
@@ -166,6 +246,13 @@ int main()
     spp = calculator(c);
     printf("result = %d, quantity = %d\n", spp.result, spp.quantity);
     printf("%d\n", x);
+    
+    int r = Deikstra("(2+3)*4"); // 2 3 + 4 *
+    printf("outuput length: %d\n", r);
+    r = Deikstra("2+3*4"); // 2 3 4 * +     
+    printf("outuput length: %d\n", r);
+    r = Deikstra("2+3-4"); // 2 3 + 4 -     
+    printf("outuput length: %d\n", r);
     return 0;
 }
 
